@@ -8,44 +8,44 @@ The Minimum Viable Product (MVP) with these core features:
 
 1. User Authentication
     <br/>
-   -[x] Implement basic sign-up and login functionality for patients and medical staff
-    -[ ] Use role-based access control to differentiate between patients, doctors, and admin users
+   -[x] Implement basic sign-up and login functionality for patients and medical staff 
+   -[ ] Use role-based access control to differentiate between patients, doctors, and admin users
 
 2. Appointment Scheduling
-    - [ ] Create a user interface for patients to book appointments
-    -[ ] Display available time slots based on doctor availability
-    - [ ] Allow patients to view, reschedule, and cancel their appointments
+   -[ ] Create a user interface for patients to book appointments
+   -[ ] Display available time slots based on doctor availability
+   -[ ] Allow patients to view, reschedule, and cancel their appointments
 
 3. Doctor Availability Management
     -[ ] Develop a tool for doctors to set and update their availability
-    - [ ] Integrate with a basic calendar interface
+   -[ ] Integrate with a basic calendar interface
 
 4. Automated Matching
-    -[ ] Implement a basic algorithm to match patients with available doctors based on specialization and time slots
+   -[ ] Implement a basic algorithm to match patients with available doctors based on specialization and time slots
 
 5. Basic Notification System
-    -[ ] Set up email notifications for appointment confirmations, reminders, and changes
+   -[ ] Set up email notifications for appointment confirmations, reminders, and changes
 
 Phase 2: Enhanced Features
 
 After the MVP,TODO AddOns:
 
 1. Improved User Authentication
-    -[ ] Multi-factor authentication for increased security
+   -[ ] Multi-factor authentication for increased security
 2. Advanced Appointment Scheduling
-    -[ ] Add real-time updates of available time slots
-    -[ ] Implement a more sophisticated scheduling algorithm considering factors like doctor specialization and patient needs
+   -[ ] Add real-time updates of available time slots
+   -[ ] Implement a more sophisticated scheduling algorithm considering factors like doctor specialization and patient needs
 
 3. Enhanced Doctor Availability Management
-    - [ ] Integrate with external calendars (Google Calendar, Outlook)
-    -[ ] Allow doctors to set preferred working hours and days off
+    -[ ] Integrate with external calendars (Google Calendar, Outlook)
+   -[ ] Allow doctors to set preferred working hours and days off
 
 4. Expanded Notification System
-    -[ ] Add in-app alerts in addition to email notifications
-    -[ ] Implement push notifications for mobile users
+   -[ ] Add in-app alerts in addition to email notifications
+   -[ ] Implement push notifications for mobile users
 
 5. Basic Analytics
-    -[ ] Develop simple usage tracking and appointment statistics
+   -[ ] Develop simple usage tracking and appointment statistics
 
 Phase 3: Advanced Features and Optimization
 
