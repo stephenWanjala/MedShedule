@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useAuthStore } from '@/stores/AuthStore';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/AuthStore'
 import router from '@/router'
 
-const authStore = useAuthStore();
-const username = ref<string>('');
-const password = ref<string>('');
-const errorMessage = ref<string | null>(null);
+const authStore = useAuthStore()
+const username = ref<string>('')
+const password = ref<string>('')
+const errorMessage = ref<string | null>(null)
 
 const login = async (): Promise<void> => {
-  errorMessage.value = null;
+  errorMessage.value = null
   try {
-    await authStore.login(username.value, password.value);
-    await router.push("/")
+    await authStore.login(username.value, password.value)
+    await router.push('/')
   } catch (error) {
-    console.error('Login failed', error);
-    errorMessage.value = 'Login failed. Please check your username and password and try again.';
+    console.error('Login failed', error)
+    errorMessage.value = `Error ${error.message}`
   }
-};
+}
 
-const navigateToSignUp =() =>{
+const navigateToSignUp = () => {
   router.push('/signup')
 }
 </script>
@@ -36,11 +36,25 @@ const navigateToSignUp =() =>{
             <form @submit.prevent="login" method="post">
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" v-model="username" class="form-control" id="username" name="username" required>
+                <input
+                  type="text"
+                  v-model="username"
+                  class="form-control"
+                  id="username"
+                  name="username"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" v-model="password" class="form-control" id="password" name="password" required>
+                <input
+                  type="password"
+                  v-model="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                />
               </div>
               <div v-if="errorMessage" class="alert alert-danger" role="alert">
                 {{ errorMessage }}
