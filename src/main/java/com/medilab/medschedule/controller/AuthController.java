@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,6 +44,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        long startTime = System.currentTimeMillis();
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -49,13 +52,34 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
+            System.out.println("Authentication time: " + (System.currentTimeMillis() - startTime) + "ms");
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.generateToken(authentication);
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            System.out.println("Token generation time: " + (System.currentTimeMillis() - startTime) + "ms");
+
+            String username = loginRequest.getUsername();
+            Optional<User> user = userRepository.findByUsername(username);
+            System.out.println("Database query time: " + (System.currentTimeMillis() - startTime) + "ms");
+
+            if (user.isPresent()) {
+                User nonNullUser = user.get();
+                return ResponseEntity.ok(new HashMap<String, Object>() {{
+                    put("token", jwt);
+                    put("username", nonNullUser.getUsername());
+                    put("role", nonNullUser.getRole().name());
+                    put("id", nonNullUser.getId());
+                    put("authorities", authentication.getAuthorities());
+                }});
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            }
+
         } catch (AuthenticationException e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        } finally {
+            System.out.println("Total login time: " + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
 
