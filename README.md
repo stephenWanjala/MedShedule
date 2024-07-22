@@ -7,8 +7,8 @@ Phase 1: MVP Development
 The Minimum Viable Product (MVP) with these core features:
 
 1. User Authentication
-    -<br/>
-    -[x] Implement basic sign-up and login functionality for patients and medical staff
+    <br/>
+   -[x] Implement basic sign-up and login functionality for patients and medical staff
     -[ ] Use role-based access control to differentiate between patients, doctors, and admin users
 
 2. Appointment Scheduling
