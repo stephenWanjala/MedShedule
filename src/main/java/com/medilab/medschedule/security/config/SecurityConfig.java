@@ -40,9 +40,12 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                );
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/patient/**").hasRole("PATIENT")
+                .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+        );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
