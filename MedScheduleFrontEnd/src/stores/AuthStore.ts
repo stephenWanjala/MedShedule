@@ -1,28 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { computed, ref } from 'vue'
-
-// src/types.ts
-export interface Authority {
-  authority: string
-}
-
-export interface LoginResponse {
-  role: string
-  id: number
-  authorities: Authority[]
-  token: string
-  username: string
-}
-export interface User {
-  id: number
-  username: string
-  roles: string[]
-}
-export interface SignupResponse {
-  success: boolean
-  message: string
-}
+import type { LoginResponse, SignupResponse, User } from '@/types'
 
 const baseUrl: String = 'http://localhost:8080/api/auth'
 
