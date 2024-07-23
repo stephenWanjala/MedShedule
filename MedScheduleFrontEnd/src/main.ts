@@ -10,6 +10,7 @@ import axios from 'axios'
 
 const app = createApp(App)
 // Vuetify
+import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
@@ -30,8 +31,8 @@ const vuetify = createVuetify({
 })
 
 app.use(createPinia())
-app.use(router)
 app.use(vuetify)
+app.use(router)
 const authStore = useAuthStore()
 axios.interceptors.request.use(
   (config) => {
@@ -40,6 +41,12 @@ axios.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const authStore = useAuthStore()
+      authStore.handleUnauthorized()
+    }
+    Promise.reject(error).then(() => console.log(error))
+  }
 )
 app.mount('#app')

@@ -18,10 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -101,4 +98,25 @@ public class AuthController {
 
         return ResponseEntity.ok(new ApiResponse(true, "User registered successfully"));
     }
+
+    
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        String username = tokenProvider.getUsernameFromJWT(jwt);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            User nonNullUser = user.get();
+            return ResponseEntity.ok(new HashMap<String, Object>() {{
+                put("username", nonNullUser.getUsername());
+                put("role", nonNullUser.getRole().name());
+                put("id", nonNullUser.getId());
+                put("authorities", nonNullUser.getAuthorities());
+            }});
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+
 }

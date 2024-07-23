@@ -9,6 +9,7 @@ import com.medilab.medschedule.repository.AppointmentRepository;
 import com.medilab.medschedule.repository.UserRepository;
 import com.medilab.medschedule.request.AppointmentRequest;
 import com.medilab.medschedule.response.ResourceNotFoundException;
+import com.medilab.medschedule.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -28,7 +30,8 @@ public class AppointmentController {
 
     @Autowired
     private AppointmentRepository appointmentRepository;
-
+    @Autowired
+    private JwtTokenProvider provider;
     @Autowired
     private UserRepository userRepository;
 
@@ -54,21 +57,39 @@ public class AppointmentController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> getMyAppointments(Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User patient = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+//    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<?> getMyAppointments(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        String username = provider.getUsernameFromJWT(jwt);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            if (user.get().getRole().name().equals("DOCTOR")) {
+                List<Appointment> appointments = appointmentRepository.findByDoctorAndStatus(user.get(), AppointmentStatus.SCHEDULED);
+                return ResponseEntity.ok(appointments);
+            }
+            else if (user.get().getRole().name().equals("PATIENT")) {
+                List<Appointment> appointments = appointmentRepository.findByPatientAndStatus(user.get(), AppointmentStatus.SCHEDULED);
+                return ResponseEntity.ok(appointments);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
-        List<Appointment> appointments = appointmentRepository.findByPatientAndStatus(patient, AppointmentStatus.SCHEDULED);
 
-        return ResponseEntity.ok(appointments);
     }
 
     @PutMapping("/{id}/reschedule")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> rescheduleAppointment(@PathVariable Long id, @RequestBody AppointmentRequest request, Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<?> rescheduleAppointment(@PathVariable Long id, @RequestBody AppointmentRequest request, @RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        String username = provider.getUsernameFromJWT(jwt);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        if (user.get().getRole().name().equals("DOCTOR")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Doctors cannot reschedule appointments");
+        }
+        UserPrincipal userPrincipal = UserPrincipal.create(user.get());
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
@@ -83,9 +104,18 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> cancelAppointment(@PathVariable Long id, Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<?> cancelAppointment(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        String username = provider.getUsernameFromJWT(jwt);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        if (user.get().getRole().name().equals("DOCTOR")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Doctors cannot cancel appointments");
+        }
+        UserPrincipal userPrincipal = UserPrincipal.create(user.get());
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
@@ -100,7 +130,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/available-slots")
-    @PreAuthorize("hasRole('PATIENT')")
+//    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<?> getAvailableSlots(@RequestParam Long doctorId, @RequestParam LocalDate date) {
         User doctor = userRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", doctorId));
