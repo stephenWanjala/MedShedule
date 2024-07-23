@@ -36,7 +36,7 @@ public class AppointmentController {
     private UserRepository userRepository;
 
     @PostMapping
-    @PreAuthorize("hasRole('PATIENT')")
+//    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequest request, Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User patient = userRepository.findById(userPrincipal.getId())
