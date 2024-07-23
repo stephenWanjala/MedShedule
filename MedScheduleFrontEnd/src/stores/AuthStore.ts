@@ -1,37 +1,42 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { computed, ref } from 'vue'
 import type { LoginResponse, SignupResponse, User } from '@/types'
 import router from '@/router'
 
-const baseUrl: String = 'http://localhost:8080/api/auth'
+const BASE_URL = 'http://localhost:8080/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
   const user = ref<User | null>(null)
+  const loadingDoctors = ref(false)
+  const allDoctors = ref<User[] | null>(null)
 
   const isAuthenticated = computed(() => !!token.value)
 
-  const login = async (username: string, password: string): Promise<void> => {
-    try {
-      const response = await axios.post<LoginResponse>(`${baseUrl}/login`, { username, password })
-      token.value = response.data.token
-      localStorage.setItem('token', token.value)
-      user.value = {
-        id: response.data.id,
-        username: response.data.username,
-        roles: response.data.authorities.map((auth) => auth.authority)
-      }
-    } catch (error) {
-      throw new Error(`Error login ${token.value}: ${error}`)
+  const setAuthData = (data: LoginResponse) => {
+    token.value = data.token
+    localStorage.setItem('token', data.token)
+    user.value = {
+      id: data.id,
+      username: data.username,
+      roles: data.authorities.map((auth) => auth.authority)
     }
   }
 
-  const handleUnauthorized = () => {
+  const clearAuthData = () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
-    router.push('/login') // Redirect to login page
+  }
+
+  const login = async (username: string, password: string): Promise<void> => {
+    try {
+      const response = await axios.post<LoginResponse>(`${BASE_URL}/login`, { username, password })
+      setAuthData(response.data)
+    } catch (error) {
+      throw new Error(`Login error: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   const signUp = async (
@@ -40,42 +45,78 @@ export const useAuthStore = defineStore('auth', () => {
     role: string
   ): Promise<SignupResponse> => {
     try {
-      const response = await axios.post<SignupResponse>(`${baseUrl}/signup`, {
+      const response = await axios.post<SignupResponse>(`${BASE_URL}/signup`, {
         username,
         password,
         role
       })
-
       return response.data
     } catch (error) {
-      throw new Error(`Error signup: ${error}`)
+      throw new Error(`Signup error: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
-  const getUserInfo = async (): Promise<LoginResponse| null> => {
+  const getUserInfo = async (): Promise<LoginResponse | null> => {
     try {
-      const response = await axios.get<LoginResponse>(`${baseUrl}/user`, {
-        headers: {
-          'Authorization': `Bearer ${token.value}`
-        }
+      const response = await axios.get<LoginResponse>(`${BASE_URL}/user`, {
+        headers: { Authorization: `Bearer ${token.value}` }
       })
-     if (!response.data!=null) {
-       user.value = {
-         id: response.data.id,
-         username: response.data.username,
-         roles: response.data.authorities.map((auth) => auth.authority)
-       }
-     }
+      if (response.data) {
+        setAuthData(response.data)
+      }
       return response.data
     } catch (error) {
-      throw new Error(`Error fetching user info: ${error}`)
+      handleError(error)
+      return null
     }
   }
-  const logout = (): void => {
-    token.value = null
-    user.value = null
-    localStorage.removeItem('token')
+
+  const fetchDoctors = async (): Promise<void> => {
+    try {
+      loadingDoctors.value = true
+      const response = await axios.get<LoginResponse[]>(`${BASE_URL}/allDoctors`, {
+        headers: { Authorization: `Bearer ${token.value}` }
+      })
+      allDoctors.value = response.data.map((doctor) => ({
+        id: doctor.id,
+        username: doctor.username,
+        roles: doctor.authorities.map((auth) => auth.authority)
+      }))
+    } catch (error) {
+      handleError(error)
+    } finally {
+      loadingDoctors.value = false
+    }
   }
 
-  return { token, user, isAuthenticated, login, logout, signUp ,getUserInfo, handleUnauthorized}
+  const handleError = (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      handleUnauthorized()
+    } else {
+      console.error('API error:', error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  const handleUnauthorized = () => {
+    clearAuthData()
+    router.push('/login')
+  }
+
+  const logout = (): void => {
+    clearAuthData()
+  }
+
+  return {
+    token,
+    user,
+    isAuthenticated,
+    login,
+    logout,
+    signUp,
+    getUserInfo,
+    handleUnauthorized,
+    fetchDoctors,
+    loadingDoctors,
+    allDoctors
+  }
 })

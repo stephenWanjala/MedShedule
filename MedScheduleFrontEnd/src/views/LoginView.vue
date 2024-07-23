@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/AuthStore'
 import router from '@/router'
 
@@ -18,6 +18,11 @@ const login = async (): Promise<void> => {
     errorMessage.value = `Error ${error.message}`
   }
 }
+onMounted(() => {
+  if (authStore.token) {
+    router.push('/')
+  }
+})
 
 const navigateToSignUp = () => {
   router.push('/signup')

@@ -43,10 +43,8 @@ axios.interceptors.request.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      const authStore = useAuthStore()
-      authStore.handleUnauthorized()
+      Promise.reject(error).then(() => console.log(error))
     }
-    Promise.reject(error).then(() => console.log(error))
   }
 )
 app.mount('#app')
