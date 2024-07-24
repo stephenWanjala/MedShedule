@@ -64,11 +64,11 @@ public class AppointmentController {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             if (user.get().getRole().name().equals("DOCTOR")) {
-                List<Appointment> appointments = appointmentRepository.findByDoctorAndStatus(user.get(), AppointmentStatus.SCHEDULED);
+                List<Appointment> appointments = appointmentRepository.findByPatient(user.get());
                 return ResponseEntity.ok(appointments);
             }
             else if (user.get().getRole().name().equals("PATIENT")) {
-                List<Appointment> appointments = appointmentRepository.findByPatientAndStatus(user.get(), AppointmentStatus.SCHEDULED);
+                List<Appointment> appointments = appointmentRepository.findByPatient(user.get());
                 return ResponseEntity.ok(appointments);
             }
         }

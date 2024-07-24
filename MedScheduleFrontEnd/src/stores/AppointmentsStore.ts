@@ -20,6 +20,8 @@ export const useAppointmentStore = defineStore('appointment', () => {
     try {
       const response = await getMyAppointments()
       myAppointments.value = response.data
+      console.log(`Appointments ${myAppointments.value}`)
+      console.log(`Appointments ${response.data}`)
     } catch (error) {
       console.error('Error fetching appointments:', error)
     } finally {

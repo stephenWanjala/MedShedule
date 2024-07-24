@@ -20,7 +20,8 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = {
       id: data.id,
       username: data.username,
-      roles: data.authorities.map((auth) => auth.authority)
+      authorities: data.authorities,
+      role:data.authorities[0].authority
     }
   }
 
@@ -62,7 +63,12 @@ export const useAuthStore = defineStore('auth', () => {
         headers: { Authorization: `Bearer ${token.value}` }
       })
       if (response.data) {
-        setAuthData(response.data)
+        user.value = {
+          id: response.data.id,
+          username: response.data.username,
+          authorities: response.data.authorities,
+          role:response.data.authorities[0].authority
+        }
       }
       return response.data
     } catch (error) {
@@ -80,7 +86,9 @@ export const useAuthStore = defineStore('auth', () => {
       allDoctors.value = response.data.map((doctor) => ({
         id: doctor.id,
         username: doctor.username,
-        roles: doctor.authorities.map((auth) => auth.authority)
+        role: doctor.authorities[0],
+        authorities: doctor.authorities,
+        token: doctor.token,
       }))
     } catch (error) {
       handleError(error)

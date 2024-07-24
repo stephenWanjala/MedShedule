@@ -113,7 +113,8 @@
     </div>
 
     <!-- Health Tips -->
-    <div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+
+    <div v-if="authStore?.user?.role=='PATIENT'" class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Health Tips</h3>
       </div>
@@ -172,9 +173,10 @@ const authStore = useAuthStore()
 const appointmentStore = useAppointmentStore()
 const router = useRouter()
 
-onMounted(() => {
-  authStore.fetchDoctors()
-  appointmentStore.fetchMyAppointments()
+onMounted(async () => {
+  await  authStore.getUserInfo()
+  await authStore.fetchDoctors()
+  await appointmentStore.fetchMyAppointments()
 })
 
 const upcomingAppointmentsCount = computed(() => {

@@ -15,6 +15,7 @@ export const bookAppointment = (appointmentRequest: any) => {
 }
 
 export const getMyAppointments = () => {
+  console.log(`config ${JSON.stringify(config)}`)
   return axios.get(`${API_URL}/my`, config)
 }
 
