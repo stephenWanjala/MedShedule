@@ -3,7 +3,7 @@
   <Layout>
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">My Appointments</h3>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">My Appointments </h3>
       </div>
       <div class="border-t border-gray-200">
         <ul v-if="!appointmentStore.loading" class="divide-y divide-gray-200">
@@ -68,8 +68,8 @@ import { useAuthStore } from '@/stores/AuthStore'
 const appointmentStore = useAppointmentStore()
 const authStore = useAuthStore()
 
-onMounted(() => {
-  appointmentStore.fetchMyAppointments()
+onMounted(async () => {
+  await appointmentStore.fetchMyAppointments()
 })
 
 const cancelAppointment = (id: number) => {

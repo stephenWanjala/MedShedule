@@ -45,7 +45,7 @@
         </div>
         <div class="border-t border-gray-200 px-4 py-5">
           <div class="space-y-3">
-            <button
+            <button v-if="authStore.user?.role=='PATIENT'"
               @click="navigateToBookAppointment"
               class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >

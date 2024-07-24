@@ -64,7 +64,7 @@ public class AppointmentController {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             if (user.get().getRole().name().equals("DOCTOR")) {
-                List<Appointment> appointments = appointmentRepository.findByPatient(user.get());
+                List<Appointment> appointments = appointmentRepository.findByDoctor(user.get());
                 return ResponseEntity.ok(appointments);
             }
             else if (user.get().getRole().name().equals("PATIENT")) {
