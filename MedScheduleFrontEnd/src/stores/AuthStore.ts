@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
       id: data.id,
       username: data.username,
       authorities: data.authorities,
-      role:data.authorities[0].authority
+      role: data.authorities[0].authority
     }
   }
 
@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
           id: response.data.id,
           username: response.data.username,
           authorities: response.data.authorities,
-          role:response.data.authorities[0].authority
+          role: response.data.authorities[0].authority
         }
       }
       return response.data
@@ -88,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
         username: doctor.username,
         role: doctor.authorities[0],
         authorities: doctor.authorities,
-        token: doctor.token,
+        token: doctor.token
       }))
     } catch (error) {
       handleError(error)

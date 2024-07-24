@@ -45,7 +45,8 @@
         </div>
         <div class="border-t border-gray-200 px-4 py-5">
           <div class="space-y-3">
-            <button v-if="authStore.user?.role=='PATIENT'"
+            <button
+              v-if="authStore.user?.role == 'PATIENT'"
               @click="navigateToBookAppointment"
               class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
@@ -114,7 +115,10 @@
 
     <!-- Health Tips -->
 
-    <div v-if="authStore?.user?.role=='PATIENT'" class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div
+      v-if="authStore?.user?.role == 'PATIENT'"
+      class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg"
+    >
       <div class="px-4 py-5 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Health Tips</h3>
       </div>
@@ -164,7 +168,7 @@ import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import Layout from '@/components/LayoutComponent.vue'
-import {CalendarIcon} from '@heroicons/vue/16/solid'
+import { CalendarIcon } from '@heroicons/vue/16/solid'
 import type { User, Appointment } from '@/types'
 import { useAuthStore } from '@/stores/AuthStore'
 import { useAppointmentStore } from '@/stores/AppointmentsStore'
@@ -174,7 +178,7 @@ const appointmentStore = useAppointmentStore()
 const router = useRouter()
 
 onMounted(async () => {
-  await  authStore.getUserInfo()
+  await authStore.getUserInfo()
   await authStore.fetchDoctors()
   await appointmentStore.fetchMyAppointments()
 })
