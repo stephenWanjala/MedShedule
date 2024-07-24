@@ -6,11 +6,11 @@
 
 1. **User Authentication**
    - [x] Implement basic sign-up and login functionality for patients and medical staff.
-   - [ ] Use role-based access control to differentiate between patients, doctors, and admin users.
+   - [x] Use role-based access control to differentiate between patients, doctors, and admin users.
 
 2. **Appointment Scheduling**
    - [ ] Create a user interface for patients to book appointments.
-   - [ ] Display available time slots based on doctor availability.
+   - [x] Display available time slots based on doctor availability.
    - [ ] Allow patients to view, reschedule, and cancel their appointments.
 
 3. **Doctor Availability Management**
@@ -73,7 +73,7 @@
 ## Technology Stack
 
 - **Backend:** Java with Spring Boot
-- **Frontend:** React
+- **Frontend:** Vue Js & Tailwind CSS
 - **Database:** PostgreSQL
 - **Authentication:** JWT
 - **Cloud Hosting:** AWS or Google Cloud Platform
