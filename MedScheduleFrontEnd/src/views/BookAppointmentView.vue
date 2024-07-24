@@ -4,28 +4,29 @@
     <div class="max-w-3xl mx-auto bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Book an Appointment</h3>
-        <p class="mt-1 max-w-2xl text-sm text-gray-500">Please fill out the details below to schedule your appointment.</p>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Please select a doctor and appointment time.</p>
       </div>
       <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
         <form @submit.prevent="bookAppointment" class="space-y-6">
           <!-- Doctor Selection -->
-          <div v-if="!selectedDoctor">
+          <div>
             <label for="doctor" class="block text-sm font-medium text-gray-700">Select a Doctor</label>
             <select
               id="doctor"
               v-model="selectedDoctorId"
               class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              @change="resetDateTime"
             >
               <option value="">Choose a doctor</option>
               <option v-for="doctor in authStore.allDoctors" :key="doctor.id" :value="doctor.id">
-                Dr. {{ doctor.username }} - {{ 'General Practice' }}
+                Dr. {{ doctor.username }} - {{  'General Practice' }}
               </option>
             </select>
           </div>
 
           <!-- Date Selection -->
-          <div>
-            <label for="date" class="block text-sm font-medium text-gray-700">Select a Date</label>
+          <div v-if="selectedDoctorId">
+            <label for="date" class="block text-sm font-medium text-gray-700">Select Date</label>
             <input
               type="date"
               id="date"
@@ -38,15 +39,15 @@
           </div>
 
           <!-- Time Slot Selection -->
-          <div v-if="availableSlots.length > 0">
-            <label for="time" class="block text-sm font-medium text-gray-700">Select a Time</label>
+          <div v-if="appointmentStore.availableSlots.length > 0">
+            <label for="time" class="block text-sm font-medium text-gray-700">Select Time</label>
             <select
               id="time"
-              v-model="selectedSlot"
+              v-model="selectedTime"
               class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
               <option value="">Choose a time</option>
-              <option v-for="slot in availableSlots" :key="slot" :value="slot">
+              <option v-for="slot in appointmentStore.availableSlots" :key="slot" :value="slot">
                 {{ formatTime(slot) }}
               </option>
             </select>
@@ -73,11 +74,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Layout from '@/components/LayoutComponent.vue'
-import { useAppointmentStore } from '@/stores/AppointmentsStore'
 import { useAuthStore } from '@/stores/AuthStore'
+import { useAppointmentStore } from '@/stores/AppointmentsStore'
 
 const router = useRouter()
 const route = useRoute()
@@ -86,8 +87,7 @@ const appointmentStore = useAppointmentStore()
 
 const selectedDoctorId = ref<number | null>(Number(route.params.doctorId) || null)
 const selectedDate = ref('')
-const selectedSlot = ref('')
-const availableSlots = ref<string[]>([])
+const selectedTime = ref('')
 
 const minDate = computed(() => {
   const tomorrow = new Date()
@@ -101,12 +101,8 @@ const maxDate = computed(() => {
   return maxDate.toISOString().split('T')[0]
 })
 
-const selectedDoctor = computed(() => {
-  return authStore?.allDoctors?.find(doctor => doctor.id === selectedDoctorId.value) || null
-})
-
 const isFormValid = computed(() => {
-  return selectedDoctorId.value && selectedDate.value && selectedSlot.value
+  return selectedDoctorId.value && selectedDate.value && selectedTime.value
 })
 
 onMounted(async () => {
@@ -115,22 +111,35 @@ onMounted(async () => {
   }
 })
 
+watch(selectedDoctorId, () => {
+  selectedDate.value = ''
+  selectedTime.value = ''
+})
+
 const fetchAvailableSlots = async () => {
   if (selectedDoctorId.value && selectedDate.value) {
-     await appointmentStore.fetchAvailableSlots(selectedDoctorId.value, selectedDate.value)
+    await appointmentStore.fetchAvailableSlots(selectedDoctorId.value, selectedDate.value)
   }
 }
 
-const formatTime = (time: string) => {
-  return new Date(`2000-01-01T${time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const formatTime = (dateTimeString: string) => {
+  return new Date(dateTimeString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const resetDateTime = () => {
+  selectedDate.value = ''
+  selectedTime.value = ''
 }
 
 const bookAppointment = async () => {
   if (isFormValid.value) {
     try {
+
+      const appointmentDateTime = new Date(selectedTime.value); // Correct format
+      console.log(`appointmentDateTime: ${JSON.stringify(appointmentDateTime)}`)
       await appointmentStore.createAppointment({
         doctorId: selectedDoctorId.value!,
-        appointmentTime: `${selectedDate.value}T${selectedSlot.value}`
+        appointmentTime: appointmentDateTime.toISOString() // Use ISO format
       })
       await router.push({ name: 'Appointments', query: { success: 'booked' } })
     } catch (error) {

@@ -37,17 +37,20 @@ public class AppointmentController {
 
     @PostMapping
 //    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequest request, Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User patient = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
-
-        User doctor = userRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getDoctorId()));
-
+    public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequest request,@RequestHeader("Authorization") String token) {
+            String jwt = token.substring(7);
+            String username = provider.getUsernameFromJWT(jwt);
+            Optional<User> patient = userRepository.findByUsername(username);
+            if (patient.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            };
+            Optional<User> doctor = userRepository.findById(request.getDoctorId());
+            if (doctor.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
+            }
         Appointment appointment = new Appointment();
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
+        appointment.setPatient(patient.get());
+        appointment.setDoctor(doctor.get());
         appointment.setAppointmentTime(request.getAppointmentTime());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
 
@@ -141,18 +144,26 @@ public class AppointmentController {
         List<Appointment> doctorAppointments = appointmentRepository.findByDoctorAndAppointmentTimeBetween(doctor, startOfDay, endOfDay);
 
         // Logic to determine available slots based on doctor's schedule and existing appointments
-        List<LocalDateTime> availableSlots = calculateAvailableSlots(doctorAppointments, startOfDay, endOfDay);
+        List<LocalDateTime> availableSlots = calculateAvailableSlots(doctorAppointments, startOfDay, endOfDay, date);
 
         return ResponseEntity.ok(availableSlots);
     }
 
-    private List<LocalDateTime> calculateAvailableSlots(List<Appointment> doctorAppointments, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+    private List<LocalDateTime> calculateAvailableSlots(List<Appointment> doctorAppointments, LocalDateTime startOfDay, LocalDateTime endOfDay, LocalDate date) {
         // Assuming the doctor's working hours are from 9 AM to 5 PM with 1-hour slots
         LocalTime startWorkingHour = LocalTime.of(9, 0);
         LocalTime endWorkingHour = LocalTime.of(17, 0);
 
         List<LocalDateTime> allSlots = new ArrayList<LocalDateTime>();
         LocalDateTime currentSlot = startOfDay.with(startWorkingHour);
+
+        // Adjust currentSlot if booking is for today and current time is after startWorkingHour
+        if (date.equals(LocalDate.now()) && LocalDateTime.now().isAfter(currentSlot)) {
+            currentSlot = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+            if (currentSlot.getHour() >= endWorkingHour.getHour()) {
+                return allSlots; // No slots available if current time is after endWorkingHour
+            }
+        }
 
         while (currentSlot.toLocalTime().isBefore(endWorkingHour) && currentSlot.isBefore(endOfDay)) {
             LocalDateTime finalCurrentSlot = currentSlot;
@@ -163,5 +174,9 @@ public class AppointmentController {
         }
         return allSlots;
     }
+
+
+
+
 
 }

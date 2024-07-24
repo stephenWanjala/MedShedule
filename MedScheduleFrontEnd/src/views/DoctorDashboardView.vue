@@ -1,11 +1,5 @@
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
+<template>Doctor dash</template>
 
-<template>
-  Doctor dash
-</template>
-
-<style scoped>
-
-</style>
+<style scoped></style>

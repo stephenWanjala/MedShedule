@@ -15,9 +15,11 @@
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
     "@mdi/font": "^7.4.47",
+    "@popperjs/core": "^2.11.8",
     "@vue-hero-icons/solid": "^1.7.2",
     "axios": "^1.7.2",
     "pinia": "^2.1.7",
+    "v-calendar": "^3.1.2",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },

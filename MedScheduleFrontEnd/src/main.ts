@@ -17,6 +17,8 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases } from 'vuetify/iconsets/fa'
 import { mdi } from 'vuetify/iconsets/mdi'
+import { Calendar, DatePicker } from 'v-calendar'
+import 'v-calendar/style.css'
 
 const vuetify = createVuetify({
   components,
@@ -33,6 +35,10 @@ const vuetify = createVuetify({
 app.use(createPinia())
 app.use(vuetify)
 app.use(router)
+// app.use(SetupCalendar, {})
+// eslint-disable-next-line vue/multi-word-component-names
+app.component('Calendar', Calendar)
+app.component('DatePicker', DatePicker)
 const authStore = useAuthStore()
 axios.interceptors.request.use(
   (config) => {
