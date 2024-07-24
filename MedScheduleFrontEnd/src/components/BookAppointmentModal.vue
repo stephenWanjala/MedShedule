@@ -35,8 +35,7 @@ const bookAppointment = () => {
   if (selectedDate.value && selectedSlot.value) {
     appointmentStore.createAppointment({
       doctorId: props.doctor.id,
-      date: selectedDate.value,
-      time: selectedSlot.value
+      appointmentTime: selectedSlot.value
     })
     // Close modal or navigate back
   }

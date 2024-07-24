@@ -130,7 +130,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/available-slots")
-//    @PreAuthorize("hasRole('PATIENT')")
+// @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<?> getAvailableSlots(@RequestParam Long doctorId, @RequestParam LocalDate date) {
         User doctor = userRepository.findById(doctorId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", doctorId));
@@ -147,11 +147,14 @@ public class AppointmentController {
     }
 
     private List<LocalDateTime> calculateAvailableSlots(List<Appointment> doctorAppointments, LocalDateTime startOfDay, LocalDateTime endOfDay) {
-        // Implement logic to calculate available slots
-        // This is a simplified example; you might want to consider doctor's working hours, appointment duration, etc.
+        // Assuming the doctor's working hours are from 9 AM to 5 PM with 1-hour slots
+        LocalTime startWorkingHour = LocalTime.of(9, 0);
+        LocalTime endWorkingHour = LocalTime.of(17, 0);
+
         List<LocalDateTime> allSlots = new ArrayList<LocalDateTime>();
-        LocalDateTime currentSlot = startOfDay;
-        while (currentSlot.isBefore(endOfDay)) {
+        LocalDateTime currentSlot = startOfDay.with(startWorkingHour);
+
+        while (currentSlot.toLocalTime().isBefore(endWorkingHour) && currentSlot.isBefore(endOfDay)) {
             LocalDateTime finalCurrentSlot = currentSlot;
             if (doctorAppointments.stream().noneMatch(app -> app.getAppointmentTime().equals(finalCurrentSlot))) {
                 allSlots.add(currentSlot);
@@ -160,4 +163,5 @@ public class AppointmentController {
         }
         return allSlots;
     }
+
 }

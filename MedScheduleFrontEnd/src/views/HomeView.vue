@@ -225,7 +225,7 @@ const navigateToBookAppointment = () => {
 }
 
 const navigateToAppointments = () => {
-  router.push({ name: 'Appointments' })
+  router.push({ name: 'My Appointments' })
 }
 
 const navigateToMedicalRecords = () => {

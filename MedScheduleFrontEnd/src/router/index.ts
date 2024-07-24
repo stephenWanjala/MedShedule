@@ -24,7 +24,27 @@ const router = createRouter({
     {
       path: '/appointments',
       name: 'My Appointments',
-      component: () => import('../views/AppointmentsView.vue')
+      component: () => import('../views/AppointmentsView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/BookAppointment',
+      name: 'BookAppointment',
+      component: () => import('../views/BookAppointmentView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+
+    {
+      path: '/doctor-dashboard',
+      name: 'Doctor Dashboard',
+      component: () => import('../views/DoctorDashboardView.vue'),
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/about',
@@ -40,7 +60,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  if (to.meta.requiresAuth && !authStore.isAuthenticated && !authStore.user) {
     next('/login')
   } else {
     next()
