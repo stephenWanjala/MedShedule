@@ -9,9 +9,9 @@
    - [x] Use role-based access control to differentiate between patients, doctors, and admin users.
 
 2. **Appointment Scheduling**
-   - [ ] Create a user interface for patients to book appointments.
+   - [x] Create a user interface for patients to book appointments.
    - [x] Display available time slots based on doctor availability.
-   - [ ] Allow patients to view, reschedule, and cancel their appointments.
+   - [x] Allow patients to view, reschedule, and cancel their appointments.
 
 3. **Doctor Availability Management**
    - [ ] Develop a tool for doctors to set and update their availability.
